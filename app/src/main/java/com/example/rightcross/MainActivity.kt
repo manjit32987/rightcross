@@ -1,6 +1,8 @@
 package com.example.rightcross
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.TextView
@@ -18,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var xWinCount: TextView
     private lateinit var oWinCount: TextView
     private lateinit var mode: String
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
                     if (mode == "computer" && currentPlayer == 'O') {
-                        makeComputerMove()
+                        handler.postDelayed({ makeComputerMove() }, 500) // 500 milliseconds delay
                     }
                 }
             }
