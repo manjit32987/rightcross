@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "952459726233",
+    "project_id": "right-cross",
+    "storage_bucket": "right-cross.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952459726233:android:2d75334c2dec2968219708",
+        "android_client_info": {
+          "package_name": "com.example.rightcross"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOXQNYw1OqU_EtVy6n-iM0fqI7gULjC-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

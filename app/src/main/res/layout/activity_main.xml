@@ -4,24 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    tools:context=".MainActivity">
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/coinCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Coins: 0"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/xWinCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="X wins: 0"
+        android:text="Player A: 0"
         android:textSize="18sp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/oWinCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="O wins: 0"
+        android:text="Player B: 0"
         android:textSize="18sp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:gravity="center"/>
 
     <GridLayout
         android:id="@+id/gridLayout"
@@ -30,17 +40,44 @@
         android:rowCount="3"
         android:columnCount="3">
 
-        <Button android:id="@+id/button00" style="@style/TicTacToeButton"/>
-        <Button android:id="@+id/button01" style="@style/TicTacToeButton"/>
-        <Button android:id="@+id/button02" style="@style/TicTacToeButton"/>
+        <Button
+            android:id="@+id/button00"
+            style="@style/TicTacToeButton"
+            android:tag="00"/>
+        <Button
+            android:id="@+id/button01"
+            style="@style/TicTacToeButton"
+            android:tag="01"/>
+        <Button
+            android:id="@+id/button02"
+            style="@style/TicTacToeButton"
+            android:tag="02"/>
 
-        <Button android:id="@+id/button10" style="@style/TicTacToeButton"/>
-        <Button android:id="@+id/button11" style="@style/TicTacToeButton"/>
-        <Button android:id="@+id/button12" style="@style/TicTacToeButton"/>
+        <Button
+            android:id="@+id/button10"
+            style="@style/TicTacToeButton"
+            android:tag="10"/>
+        <Button
+            android:id="@+id/button11"
+            style="@style/TicTacToeButton"
+            android:tag="11"/>
+        <Button
+            android:id="@+id/button12"
+            style="@style/TicTacToeButton"
+            android:tag="12"/>
 
-        <Button android:id="@+id/button20" style="@style/TicTacToeButton"/>
-        <Button android:id="@+id/button21" style="@style/TicTacToeButton"/>
-        <Button android:id="@+id/button22" style="@style/TicTacToeButton"/>
+        <Button
+            android:id="@+id/button20"
+            style="@style/TicTacToeButton"
+            android:tag="20"/>
+        <Button
+            android:id="@+id/button21"
+            style="@style/TicTacToeButton"
+            android:tag="21"/>
+        <Button
+            android:id="@+id/button22"
+            style="@style/TicTacToeButton"
+            android:tag="22"/>
     </GridLayout>
 
     <Button

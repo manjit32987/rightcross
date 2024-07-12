@@ -6,150 +6,165 @@ import android.os.Looper
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var board: Array<Array<Button>>
-    private var currentPlayer = 'X'
-    private var gameActive = true
-    private var xWins = 0
-    private var oWins = 0
-
+    private lateinit var gridLayout: GridLayout
     private lateinit var xWinCount: TextView
     private lateinit var oWinCount: TextView
-    private lateinit var mode: String
-    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var coinCount: TextView
+    private lateinit var resetButton: Button
+
+    private var xWins = 0
+    private var oWins = 0
+    private var coins = 0
+    private var gameBoard = Array(3) { Array(3) { "" } }
+    private var currentPlayer = "X"
+    private var mode: String? = null
+    private var isComputerMove = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mode = intent.getStringExtra("mode") ?: "someone"
-
-        board = Array(3) { r ->
-            Array(3) { c ->
-                initButton(r, c)
-            }
-        }
-
+        gridLayout = findViewById(R.id.gridLayout)
         xWinCount = findViewById(R.id.xWinCount)
         oWinCount = findViewById(R.id.oWinCount)
+        coinCount = findViewById(R.id.coinCount)
+        resetButton = findViewById(R.id.resetButton)
 
-        val resetButton: Button = findViewById(R.id.resetButton)
-        resetButton.setOnClickListener {
-            resetBoard()
-        }
+        mode = intent.getStringExtra("mode")
 
-        updateWinCounts()
-    }
-
-    private fun initButton(row: Int, col: Int): Button {
-        val button: Button = findViewById(resources.getIdentifier("button$row$col", "id", packageName))
-        button.setOnClickListener {
-            if (gameActive && button.text.isEmpty()) {
-                button.text = currentPlayer.toString()
-                if (checkWin()) {
-                    gameActive = false
-                    if (currentPlayer == 'X') {
-                        xWins++
-                        showWinDialog("Congratulations X wins!")
-                    } else {
-                        oWins++
-                        showWinDialog("Congratulations O wins!")
-                    }
-                    updateWinCounts()
-                } else {
-                    currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
-                    if (mode == "computer" && currentPlayer == 'O') {
-                        handler.postDelayed({ makeComputerMove() }, 500) // 500 milliseconds delay
-                    }
-                }
+        for (i in 0 until gridLayout.childCount) {
+            val button = gridLayout.getChildAt(i) as Button
+            button.setOnClickListener {
+                onGridButtonClick(button)
             }
         }
-        return button
+
+        resetButton.setOnClickListener {
+            resetGame()
+        }
     }
 
-    private fun makeComputerMove() {
-        // Simple AI to make a move
-        for (i in 0..2) {
-            for (j in 0..2) {
-                if (board[i][j].text.isEmpty()) {
-                    board[i][j].text = 'O'.toString()
-                    if (checkWin()) {
-                        gameActive = false
+    private fun onGridButtonClick(button: Button) {
+        val tag = button.tag.toString()
+        val row = tag[0].toString().toInt()
+        val col = tag[1].toString().toInt()
+
+        if (gameBoard[row][col].isEmpty() && currentPlayer == "X") {
+            gameBoard[row][col] = currentPlayer
+            button.text = currentPlayer
+            if (checkWin(currentPlayer)) {
+                xWins++
+                coins += 20
+                updateScores()
+                showResult("Player X wins!")
+                return
+            }
+            if (isBoardFull()) {
+                showResult("It's a draw!")
+                return
+            }
+            currentPlayer = "O"
+            if (mode == "computer") {
+                isComputerMove = true
+                Handler(Looper.getMainLooper()).postDelayed({
+                    computerMove()
+                    isComputerMove = false
+                }, 10)
+            }
+        } else if (gameBoard[row][col].isEmpty() && currentPlayer == "O" && mode == "friend_offline") {
+            gameBoard[row][col] = currentPlayer
+            button.text = currentPlayer
+            if (checkWin(currentPlayer)) {
+                oWins++
+                coins -= 20
+                updateScores()
+                showResult("Player O wins!")
+                return
+            }
+            if (isBoardFull()) {
+                showResult("It's a draw!")
+                return
+            }
+            currentPlayer = "X"
+        }
+    }
+
+    private fun computerMove() {
+        for (i in 0 until 3) {
+            for (j in 0 until 3) {
+                if (gameBoard[i][j].isEmpty()) {
+                    gameBoard[i][j] = "O"
+                    val buttonId = resources.getIdentifier("button$i$j", "id", packageName)
+                    val button = findViewById<Button>(buttonId)
+                    button.text = "O"
+                    if (checkWin("O")) {
                         oWins++
-                        showWinDialog("Congratulations O wins!")
-                        updateWinCounts()
-                    } else {
-                        currentPlayer = 'X'
+                        coins -= 20
+                        updateScores()
+                        showResult("Computer wins!")
+                        return
                     }
+                    if (isBoardFull()) {
+                        showResult("It's a draw!")
+                        return
+                    }
+                    currentPlayer = "X"
                     return
                 }
             }
         }
     }
 
-    private fun checkWin(): Boolean {
-        // Check rows
-        for (i in 0..2) {
-            if (board[i][0].text == currentPlayer.toString() &&
-                board[i][1].text == currentPlayer.toString() &&
-                board[i][2].text == currentPlayer.toString()) {
-                return true
-            }
+    private fun checkWin(player: String): Boolean {
+        for (i in 0 until 3) {
+            if (gameBoard[i][0] == player && gameBoard[i][1] == player && gameBoard[i][2] == player) return true
+            if (gameBoard[0][i] == player && gameBoard[1][i] == player && gameBoard[2][i] == player) return true
         }
-
-        // Check columns
-        for (i in 0..2) {
-            if (board[0][i].text == currentPlayer.toString() &&
-                board[1][i].text == currentPlayer.toString() &&
-                board[2][i].text == currentPlayer.toString()) {
-                return true
-            }
-        }
-
-        // Check diagonals
-        if (board[0][0].text == currentPlayer.toString() &&
-            board[1][1].text == currentPlayer.toString() &&
-            board[2][2].text == currentPlayer.toString()) {
-            return true
-        }
-
-        if (board[0][2].text == currentPlayer.toString() &&
-            board[1][1].text == currentPlayer.toString() &&
-            board[2][0].text == currentPlayer.toString()) {
-            return true
-        }
-
+        if (gameBoard[0][0] == player && gameBoard[1][1] == player && gameBoard[2][2] == player) return true
+        if (gameBoard[0][2] == player && gameBoard[1][1] == player && gameBoard[2][0] == player) return true
         return false
     }
 
-    private fun resetBoard() {
-        for (i in 0..2) {
-            for (j in 0..2) {
-                board[i][j].text = ""
+    private fun isBoardFull(): Boolean {
+        for (i in 0 until 3) {
+            for (j in 0 until 3) {
+                if (gameBoard[i][j].isEmpty()) return false
             }
         }
-        currentPlayer = 'X'
-        gameActive = true
+        return true
     }
 
-    private fun showWinDialog(message: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage(message)
-            .setCancelable(false)
-            .setPositiveButton("OK") { dialog, _ ->
-                resetBoard()
-                dialog.dismiss()
+    private fun resetGame() {
+        gameBoard = Array(3) { Array(3) { "" } }
+        currentPlayer = "X"
+        for (i in 0 until gridLayout.childCount) {
+            val button = gridLayout.getChildAt(i) as Button
+            button.text = ""
+        }
+    }
+
+    private fun updateScores() {
+        xWinCount.text = "Player A: $xWins"
+        oWinCount.text = "Player B: $oWins"
+        coinCount.text = "Coins: $coins"
+    }
+
+    private fun showResult(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Handler(Looper.getMainLooper()).postDelayed({
+            resetGame()
+            currentPlayer = if (mode == "computer") "X" else currentPlayer
+            if (mode == "computer") {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (currentPlayer == "O") {
+                        computerMove()
+                    }
+                }, 10)
             }
-        val alert = builder.create()
-        alert.show()
-    }
-
-    private fun updateWinCounts() {
-        xWinCount.text = "X wins: $xWins"
-        oWinCount.text = "O wins: $oWins"
+        }, 2000)
     }
 }

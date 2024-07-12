@@ -21,6 +21,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".PlayWithFriendActivity"
+            android:exported="true" />
+
         <activity android:name=".MainActivity"
             android:exported="true" />
 
